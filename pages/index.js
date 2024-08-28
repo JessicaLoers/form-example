@@ -1,14 +1,15 @@
+import Link from "next/link";
 import Form from "@/components/Form";
 
 export default function HomePage({ remedies, onAddRemedy }) {
   return (
     <div>
       <h1>List of remedies</h1>
-      <Form onAddRemedy={onAddRemedy} />
+      <Form onFormSubmit={onAddRemedy} />
       <ul>
         {remedies.map(({ id, title, symptoms }) => (
           <li key={id}>
-            {title}{" "}
+            <Link href={`/remedy/${id}`}>{title}</Link>
             <ul>
               {symptoms.map((symptom) => (
                 <li key={`symptom-${symptom}`}>{symptom}</li>

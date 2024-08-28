@@ -11,6 +11,14 @@ export default function App({ Component, pageProps }) {
     setRemedies([{ id: uuidv4(), ...newRemedy }, ...remedies]);
   }
 
+  function handleUpdateRemedy(id, updatedRemedy) {
+    setRemedies(
+      remedies.map((remedy) =>
+        remedy.id === id ? { ...remedy, ...updatedRemedy } : remedy
+      )
+    );
+  }
+
   return (
     <>
       <GlobalStyle />
@@ -18,6 +26,7 @@ export default function App({ Component, pageProps }) {
         {...pageProps}
         remedies={remedies}
         onAddRemedy={handleAddRemedy}
+        onUpdateRemedy={handleUpdateRemedy}
       />
     </>
   );

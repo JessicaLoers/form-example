@@ -1,11 +1,25 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
+
 import symptoms from "@/lib/symptoms.json";
 
-export default function Form({ onAddRemedy }) {
+export default function Form({ onFormSubmit, remedy = {} }) {
   const [fields, setFields] = useState({
-    symptoms: [{ id: 1, value: "" }],
-    ingredients: [{ id: 1, value: "" }],
+    symptoms: remedy.symptoms
+      ? remedy.symptoms.map((symptom, index) => ({
+          id: index + 1,
+          value: symptom,
+        }))
+      : [{ id: 1, value: "" }],
+    ingredients: remedy.ingredients
+      ? remedy.ingredients.map((ingredient, index) => ({
+          id: index + 1,
+          value: ingredient,
+        }))
+      : [{ id: 1, value: "" }],
   });
+
+  const router = useRouter();
 
   function handleFieldChange(type, id, value) {
     setFields((prevFields) => ({
@@ -40,26 +54,36 @@ export default function Form({ onAddRemedy }) {
   function handleSubmit(event) {
     event.preventDefault();
 
-    const remedy = {
+    const newRemedy = {
       title: event.target.title.value,
       preparation: event.target.preparation.value,
       usage: event.target.usage.value,
       symptoms: extractFieldValues(fields.symptoms),
       ingredients: extractFieldValues(fields.ingredients),
       imageUrl:
+        remedy.imageUrl ||
         "https://images.unsplash.com/photo-1448935852404-7a38bb46f5b3?q=80&w=2831&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     };
 
-    onAddRemedy(remedy);
+    onFormSubmit(newRemedy);
 
-    event.target.reset();
-    event.target.title.focus();
+    if (remedy.id) {
+      router.push(`/remedy/${remedy.id}`);
+    } else {
+      event.target.reset();
+      event.target.title.focus();
+    }
   }
 
   return (
     <form style={{ display: "grid", width: "300px" }} onSubmit={handleSubmit}>
       <label htmlFor="title">Title:</label>
-      <input type="text" id="title" name="title" />
+      <input
+        type="text"
+        id="title"
+        name="title"
+        defaultValue={remedy && remedy.title}
+      />
 
       <section>
         <label>Ingredients:</label>
@@ -92,10 +116,18 @@ export default function Form({ onAddRemedy }) {
       </section>
 
       <label htmlFor="preparation">Preparation:</label>
-      <textarea id="preparation" name="preparation" />
+      <textarea
+        id="preparation"
+        name="preparation"
+        defaultValue={remedy && remedy.preparation}
+      />
 
       <label htmlFor="usage">Usage:</label>
-      <textarea id="usage" name="usage" />
+      <textarea
+        id="usage"
+        name="usage"
+        defaultValue={remedy && remedy.preparation}
+      />
 
       <section>
         <label>Symptoms:</label>
