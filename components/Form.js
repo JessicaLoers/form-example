@@ -1,16 +1,21 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
-
 import symptoms from "@/lib/symptoms.json";
 
+// If the remedy is not an empty object, we are in edit mode ;)
 export default function Form({ onFormSubmit, remedy = {} }) {
+  const router = useRouter();
+
+  // State with symptoms and ingredients fields, prefilled if editing an existing remedy
   const [fields, setFields] = useState({
+    // If remedy has symptoms, map them to fields with IDs, else start with an empty field
     symptoms: remedy.symptoms
       ? remedy.symptoms.map((symptom, index) => ({
           id: index + 1,
           value: symptom,
         }))
       : [{ id: 1, value: "" }],
+    // If ingredients has symptoms, map them to fields with IDs, else start with an empty field
     ingredients: remedy.ingredients
       ? remedy.ingredients.map((ingredient, index) => ({
           id: index + 1,
@@ -19,8 +24,7 @@ export default function Form({ onFormSubmit, remedy = {} }) {
       : [{ id: 1, value: "" }],
   });
 
-  const router = useRouter();
-
+  // Handle changes to input fields for symptoms and ingredients
   function handleFieldChange(type, id, value) {
     setFields((prevFields) => ({
       ...prevFields,
@@ -30,6 +34,7 @@ export default function Form({ onFormSubmit, remedy = {} }) {
     }));
   }
 
+  // Add a new field for symptoms or ingredients
   function handleAddField(type) {
     setFields((prevFields) => ({
       ...prevFields,
@@ -40,6 +45,7 @@ export default function Form({ onFormSubmit, remedy = {} }) {
     }));
   }
 
+  // Remove a field for symptoms or ingredients by ID
   function handleRemoveField(type, id) {
     setFields((prevFields) => ({
       ...prevFields,
@@ -47,6 +53,7 @@ export default function Form({ onFormSubmit, remedy = {} }) {
     }));
   }
 
+  // Extract the values from the fields, removing empty ones
   function extractFieldValues(fields) {
     return fields.map((field) => field.value).filter((value) => value !== "");
   }
@@ -67,9 +74,11 @@ export default function Form({ onFormSubmit, remedy = {} }) {
 
     onFormSubmit(newRemedy);
 
+    // If remedy has an ID, it's in edit mode, so navigate to the remedy's detail page
     if (remedy.id) {
       router.push(`/remedy/${remedy.id}`);
     } else {
+      // If in create mode, reset the form for new entries
       event.target.reset();
       event.target.title.focus();
     }
